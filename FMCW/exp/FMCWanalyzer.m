@@ -1,14 +1,16 @@
 clear
 sf = 48000;
-gap = 0.10;
+gap = 0.20;
 halfT = 0.5;%s
 standardFreq = 100; %f
-standardPeriod = 480;
-waveLength = 340.29/19999.751;
+B = 5000;
+offsetPart = 0.005;
+standardPeriod = sf/(B*offsetPart*2);
 
 %% read data from file
-file = "mibT1-3.pcm";
-% file = "1108/-20-1.pcm";
+% file = "R10T1-2.pcm";
+% file = "30-R10-1.pcm";
+file = "10-0.005-30-20-2.pcm";
 fileId = fopen(file,'r');
 audioDataRaw = fread(fileId,inf,'int16')';
 audioDataRawTotalTime = length(audioDataRaw)/sf;
@@ -39,79 +41,39 @@ end
 % audioVolume = smooth(audioVolume,50)';
 % locate = find(audioVolume<10);
 % audioVolume(locate) = [];
-[pksRaw,locsRaw] = findpeaks(-audioVolume,'minpeakdistance',200);
+
+
+%% filter
+audioVolume = lowpass(audioVolume,150,sf);
+[pksRaw,locsRaw] = findpeaks(-audioVolume,'minpeakdistance',standardPeriod*0.7);
 pksRaw = -pksRaw;
 
-figure(3)
+figure(4)
 plot(audioVolume)
 hold on
 plot(locsRaw,pksRaw,'.')
 hold off
+audioV = audioVolume;
 
-%% rm futile parts
-audioFlag = find(audioVolume>=74);
-audioV = [];
- for i = 1:length(audioFlag)-1
-     if audioFlag(i+1)-audioFlag(i)>halfT*sf/2
-         %中部大空隔 去除过小值
-         audioV = [audioV audioVolume(1,audioFlag(i)+1:audioFlag(i+1)-1)];
-     else
-         %小间隔 去除
-     end
- end 
- 
-[pksRaw,locsRaw] = findpeaks(-audioV,'minpeakdistance',200);
-pksRaw = -pksRaw;
-figure(5)
-plot(audioV)
-hold on
-plot(locsRaw,pksRaw,'.')
-hold off
 
 %% rm low volume part
-windowSize = 480*5;
+
 audioStrPro = [];
-stack = [];
-locsRaw = [1 locsRaw];
+
+
 i = 1;
-while i <= length(locsRaw)
-    if(locsRaw(i)+windowSize>length(audioV))
-        break;
+cnt = 0;
+while i < length(locsRaw)
+    win = audioV(1,locsRaw(i):locsRaw(i+1));
+    [pks,locs] = findpeaks(win,'minpeakdistance',standardPeriod*0.2);
+    if(length(pks)<2 && pks>3+min(win))
+        audioStrPro = [audioStrPro win];
+        cnt = cnt + 1;
     end
-    window = audioV(1,locsRaw(i):locsRaw(i)+windowSize);
-    TF = isoutlier(window,'mean',2);
-    index = find(TF==1);
-    
-    flag = 0;
-    for j = 1:length(index)
-        if window(index(j))>65
-            % remove
-            temp = find(locsRaw>(locsRaw(i)+index(j)+windowSize*2));
-            if isempty(temp)
-                i = length(locsRaw);
-            else
-                i = temp(1);
-            end
-            flag = 1;
-            break
-        end
-    end
-    
-    if flag==0 && audioV(locsRaw(i+1))>35
-        %no remove
-        audioStrPro = [audioStrPro audioV(1,locsRaw(i):locsRaw(i+1))];
-        stack = [stack i];
-        i = i+1;
-    elseif flag ==0
-        while audioV(locsRaw(i+1))<=35 || audioV(locsRaw(i+2))<=35
-            i = i+1;
-        end
-        i = i+1;
-    end
-   
+    i = i+1;
 end
 
-[pksRaw,locsRaw] = findpeaks(-audioStrPro,'minpeakdistance',200);
+[pksRaw,locsRaw] = findpeaks(-audioStrPro,'minpeakdistance',standardPeriod*0.7);
 pksRaw = -pksRaw;
 figure(3)
 plot(audioStrPro)
@@ -119,13 +81,24 @@ hold on
 plot(locsRaw,pksRaw,'.')
 hold off
 
+figure(8)
+subplot(2,1,1);
+plot(audioVolume)
+subplot(2,1,2);
+plot(audioStrPro)
+
+
 %% fft
- % FFT on audioVolume
-FFTWindowSize = length(audioStrPro);
-audioDataFFT = abs(fft(audioStrPro)/FFTWindowSize);
-audioDataFFTHalf = audioDataFFT(1:FFTWindowSize/2+1);
-audioDataFFTHalf(2:end-1) = 2*audioDataFFTHalf(2:end-1);
-FFTxlabel = sf*(0:(FFTWindowSize/2))/FFTWindowSize;
-figure(7)
-plot(FFTxlabel,audioDataFFTHalf)
-xlim([0 400])
+size = length(audioStrPro)/cnt;
+freq = sf/size;
+
+[size freq]
+%  % FFT on audioVolume
+% FFTWindowSize = length(audioStrPro);
+% audioDataFFT = abs(fft(audioStrPro)/FFTWindowSize);
+% audioDataFFTHalf = audioDataFFT(1:FFTWindowSize/2+1);
+% audioDataFFTHalf(2:end-1) = 2*audioDataFFTHalf(2:end-1);
+% FFTxlabel = sf*(0:(FFTWindowSize/2))/FFTWindowSize;
+% figure(7)
+% plot(FFTxlabel,audioDataFFTHalf)
+% xlim([0 400])

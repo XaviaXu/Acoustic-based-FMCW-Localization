@@ -2,8 +2,8 @@ clear
 sf = 48000;
 F = 17000;
 B = 5000;
-T = 0.25;
-offsetPart = 0.01;
+T = 0.5;
+offsetPart = 0.005;
 %% generate zig
 N = T * sf;
 t = 1/sf:1/sf:T;
