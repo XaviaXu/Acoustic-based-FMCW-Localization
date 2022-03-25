@@ -32,12 +32,12 @@ plot(zig)
 offsetPoint = length(zig)*offsetPart;
 %% generate 60 sec
 audio = [];
-for i = 1:15/T
+for i = 1:30/T
     audio = [audio zig];
 end
 
 figure(2)
-plot(audio)
+spectrogram(audio,256,250,256,48000)
 %% generate left/right
 % offsetPoint = N * offsetPart;
 totalPoint = length(audio) - offsetPoint;
