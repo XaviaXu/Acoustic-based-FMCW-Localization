@@ -14,8 +14,8 @@ offsetPart = 0.005;
 offsetPoints = sf*T*offsetPart;
 
 %% read data
-% fileName = "0408/2-7+20-1.pcm";
-fileName = "+20-510-0.pcm";
+fileName = "0304/L.pcm";
+% fileName = "0325/-20-1015-2.pcm";
 fileId = fopen(fileName,'r');
 audioDataRaw = fread(fileId,inf,'int16')';
 audioDataRawTotalTime = length(audioDataRaw)/sf;
@@ -42,6 +42,10 @@ figure(3)
 plot(audioVolume)
 
 [startY,startX] = max(audioVolume(1:TPoints));
+% -10
+startX = startX+ timeOffsetPoint/2+periodPoints*8;
+startY = audioVolume(1,startX);
+
 hold on
 plot(startX,startY,'*')
 hold off
@@ -79,7 +83,8 @@ pieceNum = length(startX:TPoints:totalPoints-TPoints);
 gaps = zeros(2,pieceNum);
 border = 0.05;
 borderPoints = TPoints*border;
-
+increaseCnt = 0;
+decreaseCnt = 0;
 for m=1:pieceNum
 % for m=18
     xRange = [startX+(m-1)*TPoints+1 startX+m*TPoints];
@@ -99,11 +104,24 @@ for m=1:pieceNum
     preMean2 = periodPoints;
     gapsfiltered1 = gapsTemp1(gapsTemp1>preMean1*0.9 & gapsTemp1<preMean1*1.1)
     gapsfiltered2 = gapsTemp2(gapsTemp2>preMean2*0.9 & gapsTemp2<preMean2*1.1)
+%     gapsfiltered1 = gapsTemp1;
+%     gapsfiltered2 = gapsTemp2;
+    
+%     if length(gapsfiltered2)+2==length(gapsTemp2)
+%         gapsfiltered2(length(gapsfiltered2)+1) = gapsTemp2(1)+gapsTemp2(2);
+%     elseif length(gapsfiltered2)<length(gapsTemp2)
+%             pause(0.2)
+%     end
+    if length(gapsfiltered2)<length(gapsTemp2)
+                pause(0.2)
+    end
     
     gaps(:,m) = [mean(gapsfiltered1) mean(gapsfiltered2)]
+    increaseCnt=increaseCnt+length(gapsfiltered1);
+    decreaseCnt = decreaseCnt + length(gapsfiltered2);
     pause(0.1)
 end
-
+[increaseCnt,decreaseCnt]
 
 %%
 
@@ -112,8 +130,9 @@ plot(gaps(1,:))
 hold on
 plot(gaps(2,:))
 hold off
-size = mean(mean(gaps));
-diff = abs(mean(gaps(1,:))-mean(gaps(2,:)))
+legend('frequency increase','frequency decrease')
+size = mean(nanmean(gaps));
+diff = nanmean(gaps(1,:))-nanmean(gaps(2,:))
 
 delta = sf*sf*T/(B*size*2)-offsetPoints;
 disDiff = delta/sf*340.29;

@@ -1,7 +1,7 @@
 clear
 sf = 48000;
 gap = 0.10;
-L = 0.25;
+L = 0.20;
 halfT = 0.5;%s
 standardFreq = 100; %f
 B = 5000;
@@ -11,7 +11,7 @@ offsetPoints = sf*halfT*offsetPart*2;
 
 %% read data from file
 % file = "0311-L10/30-10-2.pcm";
-file = "25-20-1.pcm";
+file = "S0-24-0.pcm";
 fileId = fopen(file,'r');
 audioDataRaw = fread(fileId,inf,'int16')';
 audioDataRawTotalTime = length(audioDataRaw)/sf;
@@ -31,6 +31,8 @@ timeOffsetPoint = timeOffset*sf;
 audioData = audioDataRaw(1,timeOffsetPoint + (1:totalPoint));
 figure(2)
 plot(audioData)
+xlabel('sampling points')
+ylabel('sound pressure')
 
 
 %% calc sound strength
@@ -43,7 +45,7 @@ end
 
 
 %% filter
-audioVolume = lowpass(audioVolume,150,sf);
+% audioVolume = lowpass(audioVolume,150,sf);
 [pksRaw,locsRaw] = findpeaks(-audioVolume,'minpeakdistance',standardPeriod*0.7);
 pksRaw = -pksRaw;
 
@@ -66,7 +68,7 @@ while i < length(locsRaw)
     win = audioV(1,locsRaw(i):locsRaw(i+1));
     [pks,locs] = findpeaks(-win,'minpeakdistance',standardPeriod*0.15);
     if(length(pks)>2)
-    elseif(length(win)>standardPeriod*0.85 && length(win)<standardPeriod*1.15 && max(win)>10+min(win)&&min(win)>47)
+    elseif(length(win)>standardPeriod*0.86 && length(win)<standardPeriod*1.15 && max(win)>10+min(win)&&min(win)>47)
         audioStrPro = [audioStrPro win];
         cnt = cnt + 1;
     end
@@ -78,9 +80,14 @@ pksRaw = -pksRaw;
 
 figure(8)
 subplot(2,1,1);
+title('sound strength')
 plot(audioVolume)
+xlabel('sampling points')
+
 subplot(2,1,2);
+title('sound strength after processing')
 plot(audioStrPro)
+xlabel('sampling points')
 
 temp = diff(locsRaw);
 figure(11)

@@ -2,11 +2,11 @@ clear
 %% THREE
 L = 0.1;
 y = 0.3:0.01:0.4;
-F = 17000;
+F = 100;
 Fmax = 23000;
 T = 0.02;
 B = Fmax-F;
-sf = 48000;
+sf = 48000*10;
 % [X,Y] = meshgrid(geChirp,y);
 % L = sqrt((X+L/2).^2 + Y.^2)/340;
 % R = sqrt((X-L/2).^2 + Y.^2)/340;
@@ -69,3 +69,8 @@ xlabel('low frequency')
 subplot(3,1,3)
 plot(t,low)
 xlabel('high frequency')
+
+figure(3)
+plot(t,abs(expect))
+xlabel('t/seconds')
+ylabel('sound pressure')

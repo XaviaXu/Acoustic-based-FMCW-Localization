@@ -1,6 +1,6 @@
 clear
 sf = 48000;
-F = 17000;
+F = 10000;
 B = 5000;
 T = 0.5;
 offsetPart = 0.005;
@@ -35,9 +35,9 @@ audio = [];
 for i = 1:30/T
     audio = [audio zig];
 end
-
-figure(2)
-spectrogram(audio,256,250,256,48000)
+% 
+% figure(2)
+% spectrogram(audio,256,250,256,48000)
 %% generate left/right
 % offsetPoint = N * offsetPart;
 totalPoint = length(audio) - offsetPoint;
