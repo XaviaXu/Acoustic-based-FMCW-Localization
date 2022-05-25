@@ -1,8 +1,9 @@
 clear
 sf = 48000;
-F = 17000;
+F = 15000;
 B = 5000;
 T = 0.1*B/1000;
+offsetP = 0.005;
 
 %% generate zig
 N = T * sf;
@@ -20,33 +21,33 @@ audio1 = [];
 audio2 = [];
 offset = 25/B*length(zig);
 zigS = circshift(zig,offset);
-for i = 1:45/T
-    if mod(i,28) <7
-        audio1 = [audio1 empty];
-        audio2 = [audio2 empty];
-    elseif mod(i,28)<14
+for i = 1:60
+    if mod(i,60) <15
         audio1 = [audio1 zig];
         audio2 = [audio2 empty];
-        if mod(i,28)==13
+        if mod(i,60)==14
            audio1 = [audio1 empty];
            audio2 = [audio2 empty]; 
         end
-    elseif mod(i,28)<21
+    elseif mod(i,60)<30
         audio1 = [audio1 empty];
         audio2 = [audio2 zig];
-        if mod(i,28)==20
+        if mod(i,45)==29
            audio1 = [audio1 empty];
            audio2 = [audio2 empty]; 
         end
-    else
+    elseif mod(i,60)<45
         audio1 = [audio1 zig];
         audio2 = [audio2 zigS];
+    else
+        audio1 = [audio1 empty];
+        audio2 = [audio2 empty];
     end
 end
 
 %%
 audioData =[audio1',audio2'];
-fileName = ['mul' num2str(F/1000) '-' num2str((F+B)/1000) 'k.wav'];
+fileName = ['WithOff' num2str(F/1000) '-' num2str((F+B)/1000) 'k.wav'];
 
 audiowrite(fileName,audioData,sf);
 

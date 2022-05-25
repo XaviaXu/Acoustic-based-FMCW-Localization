@@ -4,14 +4,14 @@ gap = 0.10;
 L = 0.20;
 halfT = 0.5;%s
 standardFreq = 100; %f
-B = 5000;
+B = 2000;
 offsetPart = 0.005;
 standardPeriod = sf/(B*offsetPart*2);
 offsetPoints = sf*halfT*offsetPart*2;
 
 %% read data from file
 % file = "0311-L10/30-10-2.pcm";
-file = "S0-24-0.pcm";
+file = "30-1820-0-0.pcm";
 fileId = fopen(file,'r');
 audioDataRaw = fread(fileId,inf,'int16')';
 audioDataRawTotalTime = length(audioDataRaw)/sf;
@@ -23,12 +23,12 @@ plot(audioDataRaw)
 % [b,a] = butter(5,18000/(sf/2),'high');
 % audioDataRaw = filter(b,a,audioDataRaw);
 
-timeOffset = 5; %s
-totalTime = ceil(audioDataRawTotalTime - timeOffset - 5);
-totalPoint = totalTime*sf;
+timeOffset = 0; %s
+totalTime = ceil(audioDataRawTotalTime - timeOffset);
+totalPoint = length(audioDataRaw)
 timeOffsetPoint = timeOffset*sf;
 
-audioData = audioDataRaw(1,timeOffsetPoint + (1:totalPoint));
+audioData = audioDataRaw;
 figure(2)
 plot(audioData)
 xlabel('sampling points')

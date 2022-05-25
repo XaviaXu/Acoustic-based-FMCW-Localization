@@ -1,17 +1,17 @@
 clear
 sf = 48000;
-gap = 0.1;
+gap = 0.2;
 halfT = 0.5;%s
 standardFreq = 100; %f
-F = 10000;
+F = 15000;
 B = 5000;
 T = 0.5;
 offsetPart = 0.005;
 standardPeriod = sf/(B*offsetPart*2);
 %% distance diff
-yDis = 0.3;
+yDis = 0.7;
 %0.04 -0.13
-xDis = 0.1;
+xDis = 0;
 leftDis = sqrt((xDis+gap/2)^2+yDis^2);
 rightDis = sqrt((xDis-gap/2)^2+yDis^2);
 dotDiff = (leftDis-rightDis)/340.29 * sf;
@@ -21,10 +21,11 @@ N = T * sf;
 t = 1/sf:1/sf:T;
 K = B/T;
 chirp = cos(2*pi.*(F.*t+K/2.*t.^2))*5000.*(1-t*1.8);
-expected = [];
-result = [];
+realD = [];
+angleD = [];
+diffD = [];
 X = [];
-for xDis=-0.3:0.1:0.3
+for xDis=-0.2:0.1:0.2
 
     X=[X xDis];
     leftDis = sqrt((xDis+gap/2)^2+yDis^2);
@@ -62,7 +63,7 @@ ylabel('sound pressure')
 %% audio volume
 windowSizePoint = 6;
 TPoints = 2*halfT*sf;
-offsetPart = 0.005;
+
 offsetPoints = 2*sf*halfT*offsetPart;
 totalPoints = length(audioData);
 timeOffsetPoint = sf;
@@ -150,12 +151,6 @@ end
 
 %%
 
-figure(6)
-plot(gaps(1,:))
-hold on
-plot(gaps(2,:))
-hold off
-legend('frequency increase','frequency decrease')
 size = mean(nanmean(gaps));
 
 delta = sf*sf*2*T/(B*size*2)-offsetPoints;
@@ -175,14 +170,15 @@ func = matlabFunction(eqn,'Vars',y);
 
 % options = optimset('Display','iter');
 y=fzero(func,0);
-expected = [expected y];
-result = [result x];
+realD = [realD y];
+angleD = [angleD disDiff/gap*yDis];
+diffD = [diffD x];
 [real size] 
 [y x]
 end
 figure(10)
-plot(X,expected)
+plot(realD,diffD-realD)
 hold on
-plot(X,result)
+plot(realD,angleD-realD)
 hold off
-legend('expected','calculated')
+legend('DIFF','ANGLE')

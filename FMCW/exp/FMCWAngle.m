@@ -1,20 +1,20 @@
 clear
 
 sf = 48000;
-T = 1;
+T = 0.4;
 TPoints = T*sf;
 freqDiff = 50;
-B = 5000;
+B = 2000;
 periodMiddle = sf/freqDiff;
 periodPoints = 960;
-gap = 0.1;
+gap = 0.2;
 L = 0.3;
 
 offsetPart = 0.005;
 offsetPoints = sf*T*offsetPart;
 
 %% read data
-fileName = "0304/L.pcm";
+fileName = "1820+20-1.pcm";
 % fileName = "0325/-20-1015-2.pcm";
 fileId = fopen(fileName,'r');
 audioDataRaw = fread(fileId,inf,'int16')';
@@ -43,7 +43,7 @@ plot(audioVolume)
 
 [startY,startX] = max(audioVolume(1:TPoints));
 % -10
-startX = startX+ timeOffsetPoint/2+periodPoints*8;
+% startX = startX+ timeOffsetPoint/2+periodPoints*8;
 startY = audioVolume(1,startX);
 
 hold on
