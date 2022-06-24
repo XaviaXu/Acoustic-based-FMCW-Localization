@@ -44,12 +44,13 @@ for i = 1:60
         audio2 = [audio2 empty];
     end
 end
-
+audio = audio1+audio2;
+figure(10)
+plot(audio)
 %%
-audioData =[audio1',audio2'];
-fileName = ['WithOff' num2str(F/1000) '-' num2str((F+B)/1000) 'k.wav'];
-
-audiowrite(fileName,audioData,sf);
-
+% audioData =[audio1',audio2'];
+% fileName = ['WithOff' num2str(F/1000) '-' num2str((F+B)/1000) 'k.wav'];
+% 
+% audiowrite(fileName,audioData,sf);
 
 
